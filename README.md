@@ -3,13 +3,8 @@
 ## Overview
 
 This project is part of the **Battleship FPGA** game implementation.
-It contains the **`decoder`** module, which scans a 4×4 keypad, determines which key is pressed, and outputs its corresponding 4-bit binary code.
-
-The included **testbench** (`tb_decoder.v`) simulates keypad presses and displays results in the console in the format:
-
-```
-[time] P1(<row>:<col>) → dec_out = <hex>
-```
+It contains the **`decoder`** module, which scans a 4×4 keypad, determines which key is pressed, and outputs its corresponding 4-bit binary code which is translated
+into the 16-LEDs on the Basys 3 Board.
 
 Example output:
 
@@ -30,10 +25,11 @@ src/
  ├── display.v           # Seven-segment display driver
  ├── scoreboard.v        # Game scoreboard logic
  ├── uart_tx.v           # UART transmitter for game logs
- └── battleship_top.v    # Top-level Battleship FPGA module
+ |── battleship_top.v    # Top-level Battleship FPGA module
+ └── keyFromSwitches.v   # Translates decoder into key for top modules
 
-sim/
- └── tb_decoder.v        # Verilog testbench for decoder modulea
+constrs/
+ └── constraints.xdc        # Constraint file
 ```
 
 ---
@@ -53,43 +49,6 @@ The decoder cycles through all 4 columns using a `col_select` counter and sets `
 If a row is active (`0`) when `scan_timer == LAG`, it updates `dec_out` with the appropriate value.
 
 ---
-
-### Testbench
-
-The testbench:
-
-1. Generates a 100 MHz clock.
-2. Uses the `press_key` task to simulate key presses by driving `row` low.
-3. Waits long enough for the scan cycle to register the press.
-4. Prints a log message showing:
-   - Player ID (`P1`)
-   - Row and column indices
-   - The decoded value (`dec_out`)
-
----
-
-## Simulation
-
-### Using Vivado
-
-1. Open Vivado and create a project with `decoder.v` and `tb_decoder.v`.
-2. Set `tb_decoder` as the top simulation source.
-3. Run simulation and view:
-   - **Waveform** to see `col`, `row`, and `dec_out` transitions.
-   - **Console** for formatted `P1(row:col)` messages.
-
----
-
-## Example Console Output
-
-```
-Starting decoder test...
-[100000 ns] P1(0:0) → dec_out = 0
-[200000 ns] P1(1:0) → dec_out = 4
-[300000 ns] P1(2:1) → dec_out = 5
-[400000 ns] P1(3:3) → dec_out = D
-[Testbench] Finished all test presses.
-```
 
 ---
 
